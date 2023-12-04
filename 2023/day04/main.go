@@ -12,16 +12,6 @@ import (
 //go:embed input.txt
 var input string
 
-type ScratchCardGame struct {
-	Cards []*Card
-}
-
-type Card struct {
-	CardNumber     int
-	WinningNumbers []int
-	OwnNumbers     []int
-}
-
 func main() {
 	game := loadData(strings.Split(input, "\n"))
 
@@ -32,6 +22,43 @@ func main() {
 	} else {
 		fmt.Printf("%d", part2(game))
 	}
+}
+
+type ScratchCardGame struct {
+	Cards []*Card
+}
+
+type Card struct {
+	CardNumber     int
+	WinningNumbers []int
+	OwnNumbers     []int
+}
+
+func part1(game *ScratchCardGame) int {
+	result := 0
+	for _, card := range game.Cards {
+		perGame := 0
+		for _, winNumber := range card.WinningNumbers {
+			for _, ownNumber := range card.OwnNumbers {
+				// since we have the numbers sorted we know that once the right part has bigger numbers we don't have to continue
+				if ownNumber > winNumber {
+					break
+				}
+
+				if winNumber == ownNumber {
+					if perGame == 0 {
+						perGame = 1
+					} else {
+						perGame *= 2
+					}
+					break
+				}
+			}
+		}
+
+		result += perGame
+	}
+	return result
 }
 
 func part2(game *ScratchCardGame) int {
@@ -67,35 +94,6 @@ func part2(game *ScratchCardGame) int {
 			}
 		}
 	}
-
-	return result
-}
-
-func part1(game *ScratchCardGame) int {
-	result := 0
-	for _, card := range game.Cards {
-		perGame := 0
-		for _, winNumber := range card.WinningNumbers {
-			for _, ownNumber := range card.OwnNumbers {
-				// since we have the numbers sorted we know that once the right part has bigger numbers we don't have to continue
-				if ownNumber > winNumber {
-					break
-				}
-
-				if winNumber == ownNumber {
-					if perGame == 0 {
-						perGame = 1
-					} else {
-						perGame *= 2
-					}
-					break
-				}
-			}
-		}
-
-		result += perGame
-	}
-
 	return result
 }
 
