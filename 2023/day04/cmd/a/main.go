@@ -9,17 +9,17 @@ import (
 	"strings"
 )
 
-//go:embed input.txt
+//go:embed ../../input.txt
 var input string
 
-type Game struct {
+type ScratchCardGame struct {
 	Cards []*Card
 }
 
 type Card struct {
-	CardNumber int
-	First      []int
-	Second     []int
+	CardNumber     int
+	WinningNumbers []int
+	OwnNumbers     []int
 }
 
 func main() {
@@ -28,18 +28,13 @@ func main() {
 
 	result := 0
 
-	game := &Game{make([]*Card, len(lines)-1)}
+	game := &ScratchCardGame{make([]*Card, len(lines)-1)}
 
 	for i, line := range lines {
-		// skip empty lines
-		if line == "" {
-			continue
-		}
-
 		game.Cards[i] = &Card{
-			CardNumber: i + 1,
-			First:      []int{},
-			Second:     []int{},
+			CardNumber:     i + 1,
+			WinningNumbers: []int{},
+			OwnNumbers:     []int{},
 		}
 
 		var cards []int
@@ -64,7 +59,7 @@ func main() {
 			if ch == 124 {
 				slices.Sort(cards)
 
-				game.Cards[i].First = cards
+				game.Cards[i].WinningNumbers = cards
 				cards = []int{}
 			}
 		}
@@ -79,13 +74,13 @@ func main() {
 
 		slices.Sort(cards)
 		// second part of the cards
-		game.Cards[i].Second = cards
+		game.Cards[i].OwnNumbers = cards
 	}
 
 	for _, card := range game.Cards {
 		perGame := 0
-		for _, first := range card.First {
-			for _, second := range card.Second {
+		for _, first := range card.WinningNumbers {
+			for _, second := range card.OwnNumbers {
 				if second > first {
 					break
 				}

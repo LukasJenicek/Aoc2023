@@ -17,9 +17,9 @@ type Game struct {
 }
 
 type Card struct {
-	CardNumber int
-	First      []int
-	Second     []int
+	CardNumber     int
+	WinningNumbers []int
+	OwnNumbers     []int
 }
 
 func main() {
@@ -29,15 +29,10 @@ func main() {
 	game := &Game{make([]*Card, len(lines)-1)}
 
 	for i, line := range lines {
-		// skip empty lines
-		if line == "" {
-			continue
-		}
-
 		game.Cards[i] = &Card{
-			CardNumber: i + 1,
-			First:      []int{},
-			Second:     []int{},
+			CardNumber:     i + 1,
+			WinningNumbers: []int{},
+			OwnNumbers:     []int{},
 		}
 
 		var numbers []int
@@ -60,7 +55,7 @@ func main() {
 			if ch == '|' {
 				slices.Sort(numbers)
 
-				game.Cards[i].First = numbers
+				game.Cards[i].WinningNumbers = numbers
 				numbers = []int{}
 			}
 		}
@@ -73,7 +68,7 @@ func main() {
 		numbers = append(numbers, n)
 
 		slices.Sort(numbers)
-		game.Cards[i].Second = numbers
+		game.Cards[i].OwnNumbers = numbers
 	}
 
 	matchesPerGame := map[int]int{}
@@ -81,8 +76,8 @@ func main() {
 
 	for _, card := range game.Cards {
 		matches := 0
-		for _, first := range card.First {
-			for _, second := range card.Second {
+		for _, first := range card.WinningNumbers {
+			for _, second := range card.OwnNumbers {
 				if second > first {
 					break
 				}
