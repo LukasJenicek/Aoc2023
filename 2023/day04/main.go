@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//go:embed input.txt
+//go:embed example.txt
 var input string
 
 type ScratchCardGame struct {
@@ -23,22 +23,19 @@ type Card struct {
 }
 
 func main() {
-	lines := strings.Split(input, "\n")
-	colonIndex := strings.Index(lines[0], ":")
+	game := loadData(strings.Split(input, "\n"))
 
 	result := 0
-
-	game := loadData(lines, colonIndex)
-
 	for _, card := range game.Cards {
 		perGame := 0
-		for _, first := range card.WinningNumbers {
-			for _, second := range card.OwnNumbers {
-				if second > first {
+		for _, winNumber := range card.WinningNumbers {
+			for _, ownNumber := range card.OwnNumbers {
+				// since we have the numbers sorted we know that once the right part has bigger numbers we don't have to continue
+				if ownNumber > winNumber {
 					break
 				}
 
-				if first == second {
+				if winNumber == ownNumber {
 					if perGame == 0 {
 						perGame = 1
 					} else {
@@ -55,52 +52,64 @@ func main() {
 	fmt.Printf("%d", result)
 }
 
-func loadData(lines []string, colonIndex int) *ScratchCardGame {
+func loadData(lines []string) *ScratchCardGame {
 	game := &ScratchCardGame{make([]*Card, len(lines))}
 
 	for i, line := range lines {
-		game.Cards[i] = &Card{
-			CardNumber:     i + 1,
-			WinningNumbers: []int{},
-			OwnNumbers:     []int{},
-		}
+		parts := strings.Split(line, "|")
+		winingPart := strings.Split(parts[0], ":")
 
-		var cards []int
+		winingNumbers := []int{}
 		number := ""
-		for _, ch := range line[colonIndex+2:] {
+		for _, ch := range winingPart[1] {
 			if isDigit(ch) {
 				number += fmt.Sprintf("%c", ch)
+				continue
 			}
 
 			if ch == ' ' && number != "" {
-				n, err := strconv.Atoi(number)
+				winNumber, err := strconv.Atoi(number)
 				if err != nil {
 					log.Fatal(err)
 				}
-
-				cards = append(cards, n)
+				winingNumbers = append(winingNumbers, winNumber)
 				number = ""
-			}
-
-			if ch == '|' {
-				slices.Sort(cards)
-
-				game.Cards[i].WinningNumbers = cards
-				cards = []int{}
 			}
 		}
 
-		n, err := strconv.Atoi(number)
+		ownNumbers := []int{}
+		number = ""
+		for _, ch := range parts[1] {
+			if isDigit(ch) {
+				number += fmt.Sprintf("%c", ch)
+				continue
+			}
+
+			if ch == ' ' && number != "" {
+				ownNumber, err := strconv.Atoi(number)
+				if err != nil {
+					log.Fatal(err)
+				}
+				ownNumbers = append(ownNumbers, ownNumber)
+				number = ""
+			}
+		}
+
+		// do not forget last number
+		ownNumber, err := strconv.Atoi(number)
 		if err != nil {
 			log.Fatal(err)
 		}
+		ownNumbers = append(ownNumbers, ownNumber)
 
-		cards = append(cards, n)
-		number = ""
+		slices.Sort(winingNumbers)
+		slices.Sort(ownNumbers)
 
-		slices.Sort(cards)
-		// second part of the cards
-		game.Cards[i].OwnNumbers = cards
+		game.Cards[i] = &Card{
+			CardNumber:     i + 1,
+			WinningNumbers: winingNumbers,
+			OwnNumbers:     ownNumbers,
+		}
 	}
 
 	return game
