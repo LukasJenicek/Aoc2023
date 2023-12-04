@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//go:embed example.txt
+//go:embed input.txt
 var input string
 
 type ScratchCardGame struct {
@@ -25,6 +25,53 @@ type Card struct {
 func main() {
 	game := loadData(strings.Split(input, "\n"))
 
+	partTwo := true
+
+	if !partTwo {
+		fmt.Printf("%d", part1(game))
+	} else {
+		fmt.Printf("%d", part2(game))
+	}
+}
+
+func part2(game *ScratchCardGame) int {
+	matchesPerGame := map[int]int{}
+	result := 0
+
+	for _, card := range game.Cards {
+		matches := 0
+		for _, first := range card.WinningNumbers {
+			for _, second := range card.OwnNumbers {
+				if second > first {
+					break
+				}
+
+				if first == second {
+					matches++
+					break
+				}
+			}
+		}
+
+		matchesPerGame[card.CardNumber]++
+		result += matchesPerGame[card.CardNumber]
+
+		if matches > 0 {
+			for i := 0; i < matchesPerGame[card.CardNumber]; i++ {
+				start := card.CardNumber + 1
+				for j := 0; j < matches; j++ {
+					matchesPerGame[start]++
+
+					start++
+				}
+			}
+		}
+	}
+
+	return result
+}
+
+func part1(game *ScratchCardGame) int {
 	result := 0
 	for _, card := range game.Cards {
 		perGame := 0
@@ -49,7 +96,7 @@ func main() {
 		result += perGame
 	}
 
-	fmt.Printf("%d", result)
+	return result
 }
 
 func loadData(lines []string) *ScratchCardGame {
