@@ -16,8 +16,38 @@ func main() {
 	times := parseLineNumbers(lines[0])
 	distances := parseLineNumbers(lines[1])
 
-	fmt.Printf("%v\n", times)
-	fmt.Printf("%v\n", distances)
+	finalCombinations := []int{}
+
+	for timeIndex, time := range times {
+		speed := 0
+		combinations := []int{}
+		distance := distances[timeIndex]
+		deltaTime := time - speed
+
+		for deltaTime > 0 {
+			if distance < speed*deltaTime {
+				combinations = append(combinations, 1)
+			}
+
+			speed++
+			deltaTime = time - speed
+		}
+
+		finalCombinations = append(finalCombinations, len(combinations))
+	}
+
+	result := 0
+
+	for _, combination := range finalCombinations {
+		if result == 0 {
+			result = combination
+			continue
+		}
+
+		result *= combination
+	}
+
+	fmt.Printf("%v\n", result)
 }
 
 func parseLineNumbers(line string) []int {
