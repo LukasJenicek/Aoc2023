@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//go:embed input.txt
+//go:embed example.txt
 var input string
 
 type Island struct {
@@ -32,15 +32,32 @@ type Interval struct {
 	Max int
 }
 
+type SeedIntervals []Interval
+
+func (in SeedIntervals) Len() int {
+	return len(in)
+}
+
+func (in SeedIntervals) Swap(i, j int) {
+	in[i], in[j] = in[j], in[i]
+}
+
+func (in SeedIntervals) Less(i, j int) bool {
+	return in[i].Min < in[j].Min
+}
+
 func main() {
-	seeds := []int{}
 	island := &Island{}
+
+	seedIntervals := SeedIntervals{}
 
 	var mapping *Mapping
 	for i, line := range strings.Split(input, "\n") {
 		// seeds
 		if i == 0 {
 			number := ""
+			minInterval := -1
+			maxInterval := -1
 
 			for _, ch := range line {
 				if isDigit(ch) {
@@ -53,13 +70,29 @@ func main() {
 					if err != nil {
 						log.Fatal(err)
 					}
-					seeds = append(seeds, seed)
+
+					if minInterval == -1 {
+						minInterval = seed
+					} else {
+						maxInterval = seed
+					}
+
+					if minInterval != -1 && maxInterval != -1 {
+						seedIntervals = append(seedIntervals, Interval{Min: minInterval, Max: minInterval + maxInterval - 1})
+
+						minInterval = -1
+						maxInterval = -1
+					}
+
 					number = ""
 				}
 			}
 
-			seed, _ := strconv.Atoi(number)
-			seeds = append(seeds, seed)
+			maxInterval, _ = strconv.Atoi(number)
+
+			if minInterval != -1 && maxInterval != -1 {
+				seedIntervals = append(seedIntervals, Interval{Min: minInterval, Max: minInterval + maxInterval - 1})
+			}
 
 			continue
 		}
@@ -124,9 +157,13 @@ func main() {
 
 	finalSeedLocations := []int{}
 
-	for _, seed := range seeds {
-		locations := []int{}
-		destination := seed
+	sort.Sort(seedIntervals)
+
+	locations := map[int][]int{}
+	var targetSeed int
+	for seedIndex, seed := range seedIntervals {
+		destination := seed.Min
+		locations[seedIndex] = []int{}
 		for _, mapping := range island.Mapping {
 			for _, m := range mapping.Maps {
 				if destination >= m.Source.Min && destination <= m.Source.Max {
@@ -136,15 +173,47 @@ func main() {
 				}
 			}
 
-			locations = append(locations, destination)
+			locations[seedIndex] = append(locations[seedIndex], destination)
 		}
 
-		finalSeedLocations = append(finalSeedLocations, locations[len(locations)-1])
+		if seedIndex == 0 {
+			targetSeed = 0
+			continue
+		}
+
+		if locations[seedIndex][len(locations[seedIndex])-1] < locations[targetSeed][len(locations[targetSeed])-1] {
+			targetSeed = seedIndex
+		}
+	}
+
+	seeds := []int{}
+
+	for i := seedIntervals[targetSeed].Min; i <= seedIntervals[targetSeed].Max; i++ {
+		seeds = append(seeds, i)
+	}
+
+	for _, seedInterval := range seedIntervals {
+		for _, seed := range seeds {
+			locations := []int{}
+			destination := seed
+			for _, mapping := range island.Mapping {
+				for _, m := range mapping.Maps {
+					if destination >= m.Source.Min && destination <= m.Source.Max {
+						destination = destination + (m.Destination.Min - m.Source.Min)
+
+						break
+					}
+				}
+
+				locations = append(locations, destination)
+			}
+
+			finalSeedLocations = append(finalSeedLocations, locations[len(locations)-1])
+		}
 	}
 
 	sort.Ints(finalSeedLocations)
 
-	fmt.Printf("%v\n", finalSeedLocations)
 	fmt.Printf("result: %v", finalSeedLocations[0])
 }
 
