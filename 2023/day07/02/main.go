@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-//go:embed input.txt
+//go:embed example.txt
 var input string
 
 type hand struct {
