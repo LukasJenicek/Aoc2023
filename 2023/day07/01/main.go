@@ -90,24 +90,6 @@ func main() {
 			values[card]++
 		}
 
-		if values['J'] > 0 {
-			count := 0
-			c := 'J'
-			for _, card := range cards {
-				if count == values[card] && cardToPriority[card] > cardToPriority[c] {
-					c = card
-					continue
-				}
-
-				if values[card] > count {
-					c = card
-					count = values[card]
-				}
-			}
-
-			values[c] = values[c] + values['J']
-		}
-
 		found := false
 	Loop:
 		for card, value := range values {
