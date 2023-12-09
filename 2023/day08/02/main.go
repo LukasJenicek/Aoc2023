@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//go:embed example.txt
+//go:embed input.txt
 var input string
 
 func main() {
@@ -91,5 +91,24 @@ FOREVER:
 		}
 	}
 
-	fmt.Printf("%v", n)
+	fmt.Printf("%v", LCM(n[0], n[1], n[2:]...))
+}
+
+func GCD(a, b int) int {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
+	}
+	return a
+}
+
+func LCM(a, b int, integers ...int) int {
+	result := a * b / GCD(a, b)
+
+	for i := 0; i < len(integers); i++ {
+		result = LCM(result, integers[i])
+	}
+
+	return result
 }
