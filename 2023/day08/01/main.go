@@ -24,8 +24,6 @@ func main() {
 		instructions += line
 	}
 
-	fmt.Printf("instructions: %v\n", instructions)
-
 	instructionsMap := map[string][]string{}
 
 	for _, line := range lines[startOfMap:] {
@@ -49,5 +47,27 @@ func main() {
 		instructionsMap[mapIndex] = []string{left, right}
 	}
 
-	fmt.Printf("%v", instructionsMap)
+	steps := 0
+	jump := "AAA"
+FOREVER:
+	for {
+		for _, instruction := range instructions {
+			var index int
+
+			if instruction == 'L' {
+				index = 0
+			} else {
+				index = 1
+			}
+
+			jump = instructionsMap[jump][index]
+			steps++
+
+			if jump == "ZZZ" {
+				break FOREVER
+			}
+		}
+	}
+
+	fmt.Printf("%v", steps)
 }
