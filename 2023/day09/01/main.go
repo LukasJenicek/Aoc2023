@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-//go:embed example.txt
+//go:embed input.txt
 var input string
 
 func main() {
@@ -53,7 +53,7 @@ func buildScheme(scheme [][]int, row []int) [][]int {
 			break
 		}
 
-		if i+1 > maxIndex && rowValue > 0 {
+		if i+1 > maxIndex && rowValue != 0 {
 			scheme = append(scheme, newRow)
 			scheme = buildScheme(scheme, newRow)
 			break
@@ -74,7 +74,7 @@ func parseLineNumbers(line string) []int {
 	number := ""
 	lineChars := len(line)
 	for i, ch := range line {
-		if ch >= '0' && ch <= '9' {
+		if ch >= '0' && ch <= '9' || ch == '-' {
 			number += fmt.Sprintf("%c", ch)
 
 			if i != lineChars-1 {
