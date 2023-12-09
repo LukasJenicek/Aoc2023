@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-//go:embed example.txt
+//go:embed input.txt
 var input string
 
 type hand struct {
@@ -20,6 +20,7 @@ var cardToPriority = map[rune]int{
 	'A': 20,
 	'K': 19,
 	'Q': 18,
+	'J': 17,
 	'T': 16,
 	'9': 15,
 	'8': 14,
@@ -29,7 +30,6 @@ var cardToPriority = map[rune]int{
 	'4': 10,
 	'3': 9,
 	'2': 8,
-	'J': 7,
 }
 
 type hands []hand
@@ -74,6 +74,7 @@ func main() {
 			'A': 0,
 			'K': 0,
 			'Q': 0,
+			'J': 0,
 			'T': 0,
 			'9': 0,
 			'8': 0,
@@ -83,29 +84,10 @@ func main() {
 			'4': 0,
 			'3': 0,
 			'2': 0,
-			'J': 0,
 		}
 
 		for _, card := range cards {
 			values[card]++
-		}
-
-		if values['J'] > 0 {
-			count := 0
-			c := 'J'
-			for _, card := range cards {
-				if count == values[card] && cardToPriority[card] > cardToPriority[c] {
-					c = card
-					continue
-				}
-
-				if values[card] > count {
-					c = card
-					count = values[card]
-				}
-			}
-
-			values[c] = values[c] + values['J']
 		}
 
 		found := false
