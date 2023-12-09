@@ -3,11 +3,12 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
 
-//go:embed input.txt
+//go:embed example.txt
 var input string
 
 type hand struct {
@@ -15,9 +16,46 @@ type hand struct {
 	bid   int
 }
 
-func main() {
-	hands := []hand{}
+var cardToPriority = map[rune]int{
+	'A': 20,
+	'K': 19,
+	'Q': 18,
+	'J': 17,
+	'T': 16,
+	'9': 15,
+	'8': 14,
+	'7': 13,
+	'6': 12,
+	'5': 11,
+	'4': 10,
+	'3': 9,
+	'2': 8,
+}
 
+type hands []hand
+
+func (h hands) Len() int      { return len(h) }
+func (h hands) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
+
+func (h hands) Less(i, j int) bool {
+	iCards := h[i].cards
+	jCards := h[j].cards
+
+	for i, c := range iCards {
+		// reverse order because then I am appending all those elements to one big slice
+		if cardToPriority[c] < cardToPriority[rune(jCards[i])] {
+			return true
+		}
+
+		if cardToPriority[c] > cardToPriority[rune(jCards[i])] {
+			return false
+		}
+	}
+
+	return cardToPriority[rune(iCards[0])] > cardToPriority[rune(jCards[0])]
+}
+
+func main() {
 	fiveOfKind := []hand{}
 	fourOfKind := []hand{}
 	fullhouse := []hand{}
@@ -99,7 +137,30 @@ func main() {
 		}
 	}
 
-	fmt.Printf("%v", hands)
+	sort.Sort(hands(fiveOfKind))
+	sort.Sort(hands(fourOfKind))
+	sort.Sort(hands(fullhouse))
+	sort.Sort(hands(threeOfKind))
+	sort.Sort(hands(twoPair))
+	sort.Sort(hands(onePair))
+	sort.Sort(hands(highCard))
+
+	allHands := []hand{}
+	allHands = append(allHands, highCard...)
+	allHands = append(allHands, onePair...)
+	allHands = append(allHands, twoPair...)
+	allHands = append(allHands, threeOfKind...)
+	allHands = append(allHands, fullhouse...)
+	allHands = append(allHands, fourOfKind...)
+	allHands = append(allHands, fiveOfKind...)
+
+	result := 0
+
+	for i, h := range allHands {
+		result += (i + 1) * h.bid
+	}
+
+	fmt.Printf("%v", result)
 }
 
 func parseLineNumbers(line string) []int {
