@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//go:embed input.txt
+//go:embed example.txt
 var input string
 
 func main() {
@@ -52,6 +52,8 @@ func main() {
 		instructionsMap[mapIndex] = []string{left, right}
 	}
 
+	n := []int{}
+
 	steps := 0
 FOREVER:
 	for {
@@ -64,25 +66,30 @@ FOREVER:
 				direction = 1
 			}
 
-			endingWithZ := 0
+			steps++
+
+			del := -1
 			// brute force is not gonna work on the real input :(
 			for i, jumpIndex := range jumpIndexes {
 				val := instructionsMap[jumpIndex][direction]
 
 				if val[len(val)-1] == 'Z' {
-					endingWithZ++
+					n = append(n, steps)
+					del = i
 				}
 
 				jumpIndexes[i] = val
 			}
 
-			steps++
+			if del != -1 {
+				jumpIndexes = append(jumpIndexes[:del], jumpIndexes[del+1:]...)
+			}
 
-			if endingWithZ == len(jumpIndexes) {
+			if len(jumpIndexes) == 0 {
 				break FOREVER
 			}
 		}
 	}
 
-	fmt.Printf("%v", steps)
+	fmt.Printf("%v", n)
 }
