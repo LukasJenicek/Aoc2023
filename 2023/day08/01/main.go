@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//go:embed example.txt
+//go:embed example02.txt
 var input string
 
 func main() {
