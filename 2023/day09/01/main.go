@@ -45,15 +45,14 @@ func calculateHistoryValue(scheme [][]int) int {
 func buildScheme(scheme [][]int, row []int) [][]int {
 	newRow := []int{}
 	maxIndex := len(row) - 1
-	rowValue := 0
 
 	for i, val := range row {
-		if i == maxIndex && rowValue == 0 {
+		if i == maxIndex && onlyZeros(newRow) {
 			scheme = append(scheme, newRow)
 			break
 		}
 
-		if i+1 > maxIndex && rowValue != 0 {
+		if i+1 > maxIndex {
 			scheme = append(scheme, newRow)
 			scheme = buildScheme(scheme, newRow)
 			break
@@ -61,8 +60,6 @@ func buildScheme(scheme [][]int, row []int) [][]int {
 
 		nextVal := row[i+1] - val
 		newRow = append(newRow, nextVal)
-
-		rowValue += nextVal
 	}
 
 	return scheme
@@ -91,4 +88,14 @@ func parseLineNumbers(line string) []int {
 	}
 
 	return numbers
+}
+
+func onlyZeros(row []int) bool {
+	for _, num := range row {
+		if num != 0 {
+			return false
+		}
+	}
+
+	return true
 }
