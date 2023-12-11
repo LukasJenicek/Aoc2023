@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-//go:embed example.txt
+//go:embed input.txt
 var input string
 
 type Point struct {
@@ -25,6 +25,12 @@ type Grid struct {
 func main() {
 	grid := loadGrid()
 
+	result := sumDistances(grid, 999999)
+
+	fmt.Printf("%v", result)
+}
+
+func sumDistances(grid Grid, expansion int) int {
 	result := 0
 	for i, star := range grid.Stars {
 		for _, other := range grid.Stars[i+1:] {
@@ -54,11 +60,13 @@ func main() {
 				}
 			}
 
+			cols = cols * expansion
+			rows = rows * expansion
+
 			result += distance + rows + cols
 		}
 	}
-
-	fmt.Printf("%v", result)
+	return result
 }
 
 func calculateDistance(star Point, other Point) int {
