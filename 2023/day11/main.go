@@ -30,7 +30,7 @@ func main() {
 	fmt.Printf("%v", result)
 }
 
-func sumDistances(grid Grid, expansion int) int {
+func sumDistances(grid Grid, expansionFactor int) int {
 	result := 0
 	for i, star := range grid.Stars {
 		for _, other := range grid.Stars[i+1:] {
@@ -60,8 +60,8 @@ func sumDistances(grid Grid, expansion int) int {
 				}
 			}
 
-			cols = cols * expansion
-			rows = rows * expansion
+			cols = cols * expansionFactor
+			rows = rows * expansionFactor
 
 			result += distance + rows + cols
 		}
